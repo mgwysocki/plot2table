@@ -6,16 +6,6 @@
 
 #include <QMainWindow>
 
-class QAction;
-class QLabel;
-class QMenu;
-class QScrollArea;
-class QScrollBar;
-class QDockWidget;
-class QGraphicsView;
-class QStackedWidget;
-
-class Label;
 class ButtonBar;
 class GraphicsScene;
 class GraphicsView;
@@ -35,7 +25,6 @@ class MainWindow : public QMainWindow
   void normal_size();
   void fit_to_window();
   void scale_image(double);
-  void move_zoom_view(QPoint);
 
  private slots:
   void about();
@@ -51,8 +40,6 @@ class MainWindow : public QMainWindow
   GraphicsScene* _scene;
   ButtonBar* _button_bar;
   QDockWidget* _dock_widget;
-  //QStackedWidget* _stack;
-  //Label* _overlay;
 
   QAction* _open_act;
   QAction* _exit_act;

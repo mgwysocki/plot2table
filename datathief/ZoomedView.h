@@ -29,6 +29,9 @@ class ZoomedView : public QGraphicsView
  public:
   ZoomedView(QWidget* parent=0);
 
+/*  public slots: */
+/*   recenter(const QPointF &p); */
+
  protected:
   MZoomedOverlay* _overlay;
   void resizeEvent(QResizeEvent*);

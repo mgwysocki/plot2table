@@ -38,15 +38,14 @@ class ButtonBar : public QWidget
   QPushButton* point_color_button;
 
  public slots:
-  void point0_set();
-  void point1_set();
+  void axis_point_set(int, QPointF);
   void point_added();
   void point_removed();
   void all_points_removed();
   void enable_buttons();
 
  signals:
-  void time_to_save(double, double, double, double, bool, bool);
+  void time_to_save(QPointF, QPointF, bool, bool);
   void color_changed(QColor);
 
  protected:

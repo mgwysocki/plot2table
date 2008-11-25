@@ -6,29 +6,38 @@
 #include "ButtonBar.h"
 #include "MainWindow.h"
 #include "GraphicsView.h"
+#include "PointList.h"
 
 #include <iostream>
 
 MainWindow::MainWindow()
 {
-  QSplitter* splitter = new QSplitter;
-  QSplitter* splitter2 = new QSplitter;
   _button_bar = new ButtonBar;
-  splitter2->addWidget(_button_bar);
-  splitter2->setOrientation(Qt::Vertical);
-  splitter->addWidget(splitter2);
-
   _scene = new GraphicsScene;
   _gview = new GraphicsView;
-  _gview->setDragMode(QGraphicsView::ScrollHandDrag);
+  //_gview->setDragMode(QGraphicsView::ScrollHandDrag);
   _gview->setScene(_scene);
-  _gview->setCursor(Qt::CrossCursor);
+  //_gview->setCursor(Qt::CrossCursor);
   _gview->setBackgroundRole(QPalette::Dark);
-  splitter->addWidget(_gview);
 
   _zoomview = new ZoomedView;
   _zoomview->setScene(_scene);
+  _zoomview->setInteractive(false);
+  _zoomview->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+  _zoomview->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+  _zoomview->scale(10., 10.);  // 10x zoomed-in view
+
+  // Ugly, but we need this for the scene to send the cursor position
+  //  updates to the zoomed view
+  _scene->set_zoomed_view(_zoomview);
+
+  QSplitter* splitter = new QSplitter;
+  QSplitter* splitter2 = new QSplitter;
+  splitter2->setOrientation(Qt::Vertical);
+  splitter2->addWidget(_button_bar);
   splitter2->addWidget(_zoomview);
+  splitter->addWidget(splitter2);
+  splitter->addWidget(_gview);
 
   QList<int> sizes;
   sizes.append(200);
@@ -40,17 +49,9 @@ MainWindow::MainWindow()
   splitter->setStretchFactor(1, 1);
   this->setCentralWidget(splitter);
 
-  _zoomview->setInteractive(false);
-  _zoomview->scale(10., 10.);
   splitter2->setStretchFactor(0, 0);
   splitter2->setStretchFactor(1, 1);
-
-  _zoomview->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-  _zoomview->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
   
-
-  connect(&_gview->_overlay, SIGNAL(movescene(QPoint)), this, SLOT(move_zoom_view(QPoint)));
-
   connect(_button_bar->open_button, SIGNAL(clicked()), 
 	  this, SLOT(open()));
   connect(_button_bar->zoom_in_button, SIGNAL(clicked()), 
@@ -61,34 +62,49 @@ MainWindow::MainWindow()
 	  this, SLOT(normal_size()));
   connect(_button_bar->fit_to_screen_button, SIGNAL(clicked()), 
 	  this, SLOT(fit_to_window()));
+
+  connect(PointList::instance(), SIGNAL(axis_point_set(int, QPointF)),
+	  _button_bar,             SLOT(axis_point_set(int, QPointF)));
+  connect(PointList::instance(), SIGNAL(axis_point_set(int, QPointF)),
+	  _scene,                  SLOT(axis_point_set(int, QPointF)));
+  connect(PointList::instance(), SIGNAL(data_point_added(QPointF)),
+	  _button_bar,             SLOT(point_added()));
+  connect(PointList::instance(), SIGNAL(data_point_added(QPointF)),
+	  _scene,                  SLOT(add_point(QPointF)));
+  connect(PointList::instance(), SIGNAL(low_error_added(QPointF)),
+	  _scene,                  SLOT(add_low_error(QPointF)));
+  connect(PointList::instance(), SIGNAL(high_error_added(QPointF)),
+	  _scene,                  SLOT(add_high_error(QPointF)));
   connect(_button_bar->remove_button, SIGNAL(clicked()), 
 	  _scene, SLOT(remove_last_point()));
   connect(_button_bar->remove_all_button, SIGNAL(clicked()), 
 	  _scene, SLOT(remove_all_points()));
+//   connect(_button_bar->remove_button, SIGNAL(clicked()), 
+// 	  PointList::instance(), SLOT(remove_last_point()));
+//   connect(_button_bar->remove_all_button, SIGNAL(clicked()), 
+// 	  PointList::instance(), SLOT(clear()));
+
   connect(_button_bar, SIGNAL(color_changed(QColor)), 
 	  _scene, SLOT(change_point_color(QColor)));
-  connect(_button_bar, SIGNAL(time_to_save(double, double, double, double, bool, bool)), 
-	  _scene, SLOT(save_points(double, double, double, double, bool, bool)));
+
+  connect(_button_bar, SIGNAL(time_to_save(QPointF, QPointF, bool, bool)), 
+	  PointList::instance(), SLOT(save_points(QPointF, QPointF, bool, bool)));
 
 //   connect(this, SIGNAL(file_opened(QString)),
 // 	  _button_bar, SLOT(enable_buttons()));
-  connect(_scene, SIGNAL(point0_set()),
-	  _button_bar, SLOT(point0_set()));
-  connect(_scene, SIGNAL(point1_set()),
-	  _button_bar, SLOT(point1_set()));
-  connect(_scene, SIGNAL(data_point_added()),
-	  _button_bar, SLOT(point_added()));
-
   connect(_scene, SIGNAL(image_doesnt_fit(QSize)),
 	  this, SLOT(resize_to_image(QSize)));
 
   createActions();
   createMenus();
+  setWindowTitle(tr("DataThief"));
 
-  setWindowTitle(tr("Image Viewer"));
+  // Set the maximum window size to the desktop size minus a 50 pixel border
   QSize maxsize(QApplication::desktop()->size());
   maxsize += QSize(-50, -50);
   setMaximumSize(maxsize);
+
+  // Set it to some default size
   resize(800, 600);
 
   // Testing...
@@ -169,7 +185,7 @@ void MainWindow::open(QString default_filename)
 
   _button_bar->log_x_checkbox->setChecked( od.is_x_log_scale() );
   _button_bar->log_y_checkbox->setChecked( od.is_y_log_scale() );
-  _scene->error_mode = od.get_error_mode();
+  PointList::instance()->set_error_mode( od.get_error_mode() );
   return;
 }
 
@@ -244,13 +260,4 @@ void MainWindow::createMenus()
   menuBar()->addMenu(_file_menu);
   menuBar()->addMenu(_view_menu);
   menuBar()->addMenu(_help_menu);
-}
-
-void MainWindow::move_zoom_view(QPoint p)
-{
-  QPointF pf( _gview->mapToScene(p) );
-  QWidget* v = _zoomview->viewport();
-  _zoomview->setSceneRect(pf.x()-v->width()/2., pf.y()-v->height()/2.,
-			  v->width(), v->height());
-  return;
 }

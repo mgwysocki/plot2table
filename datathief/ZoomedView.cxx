@@ -1,10 +1,10 @@
-
 #include <QPaintEvent>
 #include <QPainter>
 
 #include "ZoomedView.h"
 
 #include <iostream>
+using namespace std;
 
 ZoomedView::ZoomedView(QWidget* parent):
   QGraphicsView(parent)

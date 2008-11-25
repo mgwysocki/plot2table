@@ -8,10 +8,10 @@
 #include <iostream>
 
 GraphicsView::GraphicsView(QWidget* parent):
-  QGraphicsView(parent),
-  _overlay((QWidget*) this)
+  QGraphicsView(parent)
+  //  _overlay((QWidget*) this)
 {
-  _overlay.setGeometry(0, 0, width(), height());
+  //  _overlay.setGeometry(0, 0, width(), height());
 }
 
 // void GraphicsView::mouseReleaseEvent(QMouseEvent* event)
@@ -20,14 +20,14 @@ GraphicsView::GraphicsView(QWidget* parent):
 //   return;
 // }
 
-void GraphicsView::resizeEvent(QResizeEvent* e)
-{
-  QGraphicsView::resizeEvent(e);
-  _overlay.resize(this->size());
-  printf("ZoomedView::resizeEvent():  view %dx%d   overlay %dx%d\n", 
-	 width(), height(), _overlay.width(), _overlay.height());
-  return;
-}
+// void GraphicsView::resizeEvent(QResizeEvent* e)
+// {
+//   QGraphicsView::resizeEvent(e);
+//   _overlay.resize(this->size());
+//   printf("ZoomedView::resizeEvent():  view %dx%d   overlay %dx%d\n", 
+// 	 width(), height(), _overlay.width(), _overlay.height());
+//   return;
+// }
 
 
 MCursorOverlay::MCursorOverlay(QWidget* parent) :

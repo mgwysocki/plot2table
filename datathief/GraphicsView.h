@@ -37,10 +37,10 @@ class GraphicsView : public QGraphicsView
 
  public:
   GraphicsView(QWidget* parent=0);
-  MCursorOverlay _overlay;
+  //MCursorOverlay _overlay;
 
  protected:
-  void resizeEvent(QResizeEvent*);
+  //void resizeEvent(QResizeEvent*);
 };
 
 #endif

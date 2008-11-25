@@ -45,23 +45,21 @@ const QSize ButtonBar::sizeHint()
   return QSize(200, 800);
 }
 
-void ButtonBar::point0_set()
+void ButtonBar::axis_point_set(int i, QPointF)
 {
-  _instruction0->hide();
-  _label0->show();
-  x0_line_edit->show();
-  y0_line_edit->show();
-  _instruction1->show();
-  return;
-}
-
-void ButtonBar::point1_set()
-{
-  _instruction1->hide();
-  _label1->show();
-  x1_line_edit->show();
-  y1_line_edit->show();
-  _instruction2->show();
+  if(i==0) {
+    _instruction0->hide();
+    _label0->show();
+    x0_line_edit->show();
+    y0_line_edit->show();
+    _instruction1->show();
+  } else {
+    _instruction1->hide();
+    _label1->show();
+    x1_line_edit->show();
+    y1_line_edit->show();
+    _instruction2->show();
+  }
   return;
 }
 
@@ -256,7 +254,7 @@ void ButtonBar::_save_button_clicked()
     bool logx = log_x_checkbox->isChecked();
     bool logy = log_y_checkbox->isChecked();
 
-    emit time_to_save(x0, y0, x1, y1, logx, logy);
+    emit time_to_save(QPointF(x0,y0), QPointF(x1,y1), logx, logy);
 
   } else if( x1_line_edit->isVisible() ) {
     QMessageBox::warning(this, 

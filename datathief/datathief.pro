@@ -28,7 +28,8 @@ HEADERS += ButtonBar.h \
            GraphicsImageItem.h \
            GraphicsPointItem.h \
            GraphicsScene.h \
-           ZoomedView.h
+           ZoomedView.h \
+           PointList.h
 
 SOURCES += ButtonBar.cxx \
            OpenDialog.cxx \
@@ -39,6 +40,7 @@ SOURCES += ButtonBar.cxx \
            GraphicsPointItem.cxx \
            GraphicsScene.cxx \
            ZoomedView.cxx \
+           PointList.cxx \
            main.cxx
 
 RESOURCES += icons.qrc
