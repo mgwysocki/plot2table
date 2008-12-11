@@ -17,12 +17,6 @@ class GraphicsPointItem : public QGraphicsItem
 		    QGraphicsItem* parent = 0, 
 		    QGraphicsScene* scene = 0);
 
-  //virtual ~GraphicsPointItem();
-
-  static void set_axis_point0_color(QColor c) { axis_point0_color_ = c; }
-  static void set_axis_point1_color(QColor c) { axis_point1_color_ = c; }
-  static void set_point_color(QColor c) { point_color_ = c; }
-
   QRectF boundingRect() const;
   void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, 
 	     QWidget* widget);
@@ -30,10 +24,6 @@ class GraphicsPointItem : public QGraphicsItem
  protected:
   QPointF point_;
   Type type_;
-
-  static QColor axis_point0_color_;
-  static QColor axis_point1_color_;
-  static QColor point_color_;
 };
 
 #endif

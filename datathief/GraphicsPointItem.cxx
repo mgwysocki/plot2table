@@ -2,11 +2,8 @@
 #include <QPainter>
 #include <iostream>
 
+#include "PointList.h"
 #include "GraphicsPointItem.h"
-
-QColor GraphicsPointItem::axis_point0_color_ = QColor("blue");
-QColor GraphicsPointItem::axis_point1_color_ = QColor("green");
-QColor GraphicsPointItem::point_color_ = QColor("red");
 
 GraphicsPointItem::GraphicsPointItem(QPointF &point,
 				     Type t,
@@ -17,11 +14,6 @@ GraphicsPointItem::GraphicsPointItem(QPointF &point,
   type_(t)
 {}
 
-// GraphicsPointItem::~GraphicsPointItem()
-// {
-//   QGraphicsItem::~QGraphicsItem();
-//   return;
-// }
 
 QRectF GraphicsPointItem::boundingRect() const
 {
@@ -32,30 +24,31 @@ void GraphicsPointItem::paint(QPainter* painter, const QStyleOptionGraphicsItem*
 			      QWidget* widget = 0)
 {
   static QPen pen(Qt::SolidLine);
+  PointList* pl = PointList::instance();
 
   if(type_==AxisPoint0) {
-    pen.setColor(axis_point0_color_);
+    pen.setColor(pl->get_axis_point0_color());
     painter->setPen(pen);
     painter->drawRect(point_.x()-2, point_.y()-2, 4, 4);
 
   } else if(type_==AxisPoint1) {
-    pen.setColor(axis_point1_color_);
+    pen.setColor(pl->get_axis_point1_color());
     painter->setPen(pen);
     painter->drawRect(point_.x()-2, point_.y()-2, 4, 4);
 
   } else if(type_==Point) {
-    pen.setColor(point_color_);
+    pen.setColor(pl->get_point_color());
     painter->setPen(pen);
     painter->drawRect(point_.x()-2, point_.y()-2, 4, 4);
 
   } else if(type_==HighError) {
-    pen.setColor(point_color_);
+    pen.setColor(pl->get_point_color());
     painter->setPen(pen);
     painter->drawLine(point_.x()-2, point_.y(), point_.x()+2, point_.y());
     painter->drawLine(point_.x(), point_.y(), point_.x(), point_.y()+2);
 
   } else if(type_==LowError) {
-    pen.setColor(point_color_);
+    pen.setColor(pl->get_point_color());
     painter->setPen(pen);
     painter->drawLine(point_.x()-2, point_.y(), point_.x()+2, point_.y());
     painter->drawLine(point_.x(), point_.y(), point_.x(), point_.y()-2);

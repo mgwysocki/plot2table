@@ -28,7 +28,7 @@ class GraphicsScene : public QGraphicsScene
 
  public slots:
   void image_click_event(QPointF point);
-  void change_point_color(const QColor&);
+  void point_color_changed();
   void axis_point_set(int, QPointF);
   void add_point(QPointF);
   void add_low_error(QPointF);

@@ -28,6 +28,7 @@ HEADERS += ButtonBar.h \
            GraphicsImageItem.h \
            GraphicsPointItem.h \
            GraphicsScene.h \
+           LabelButton.h \
            ZoomedView.h \
            PointList.h
 
@@ -39,6 +40,7 @@ SOURCES += ButtonBar.cxx \
            GraphicsImageItem.cxx \
            GraphicsPointItem.cxx \
            GraphicsScene.cxx \
+           LabelButton.cxx \
            ZoomedView.cxx \
            PointList.cxx \
            main.cxx

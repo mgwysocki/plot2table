@@ -34,10 +34,10 @@ GraphicsScene::GraphicsScene(QObject* parent) :
   point_cursor_ = Qt::CrossCursor;
   _image_item->setCursor( point_cursor_ );
 
-  QPixmap low_error_pm("lowerrorcursor.png");
+  QPixmap low_error_pm(":/icons/cursor_low_error.png");
   low_error_cursor_ = QCursor(low_error_pm, 16, 31);
 
-  QPixmap high_error_pm("higherrorcursor.png");
+  QPixmap high_error_pm(":/icons/cursor_high_error.png");
   high_error_cursor_ = QCursor(high_error_pm, 16, 0);
 }
 
@@ -175,15 +175,11 @@ void GraphicsScene::remove_all_points()
 }
 
 
-void GraphicsScene::change_point_color(const QColor &c)
+void GraphicsScene::point_color_changed()
 {
-  _point_color = c;
-  GraphicsPointItem::set_point_color(c);
-
   foreach(GraphicsPointItem* item, point_item_list_) {
     item->update();
   }
-  //_construct_image();
   return;
 }
 

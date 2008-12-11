@@ -1,12 +1,14 @@
 #ifndef __MBUTTONBAR_H
 #define __MBUTTONBAR_H
 
+#include "LabelButton.h"
 #include <QWidget>
 class QPushButton;
 class QLineEdit;
 class QLabel;
 class QCheckBox;
 class QWidget;
+class QToolButton;
 
 class ButtonBar : public QWidget
 {
@@ -17,12 +19,7 @@ class ButtonBar : public QWidget
 
   const QSize sizeHint();
 
-  QPushButton* open_button;
   QPushButton* set_axes_button;
-  QPushButton* zoom_in_button;
-  QPushButton* zoom_out_button;
-  QPushButton* normal_size_button;
-  QPushButton* fit_to_screen_button;
   QPushButton* remove_button;
   QPushButton* remove_all_button;
   QPushButton* save_button;
@@ -35,34 +32,33 @@ class ButtonBar : public QWidget
   QCheckBox* log_x_checkbox;
   QCheckBox* log_y_checkbox;
 
-  QPushButton* point_color_button;
-
  public slots:
   void axis_point_set(int, QPointF);
   void point_added();
   void point_removed();
   void all_points_removed();
   void enable_buttons();
+  void enable() {setEnabled(true);}
 
  signals:
   void time_to_save(QPointF, QPointF, bool, bool);
-  void color_changed(QColor);
+  void color_changed();
 
  protected:
-  void _setup_buttons();
-  int _npoints;
+  void setup_buttons_();
+  int npoints_;
 
-  QLabel* _label0;
-  QLabel* _label1;
-  QLabel* _instruction0;
-  QLabel* _instruction1;
-  QLabel* _instruction2;
-
-  QColor _point_color;
+  LabelButton* label0_;
+  LabelButton* label1_;
+  QLabel* instruction0_;
+  QLabel* instruction1_;
+  LabelButton* instruction2_;
 
  protected slots:
-  void _save_button_clicked();
-  void _select_color();
+  void save_button_clicked_();
+  void select_axis_point0_color_();
+  void select_axis_point1_color_();
+  void select_point_color_();
 };
 
 #endif

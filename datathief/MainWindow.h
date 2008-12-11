@@ -26,6 +26,9 @@ class MainWindow : public QMainWindow
   void fit_to_window();
   void scale_image(double);
 
+ signals:
+  void file_opened();
+
  private slots:
   void about();
   void resize_to_image(QSize);
@@ -34,25 +37,25 @@ class MainWindow : public QMainWindow
   void createActions();
   void createMenus();
 
-  QPixmap _image_pixmap;
-  GraphicsView* _gview;
-  ZoomedView* _zoomview;
-  GraphicsScene* _scene;
-  ButtonBar* _button_bar;
-  QDockWidget* _dock_widget;
+  QPixmap image_pixmap_;
+  GraphicsView* gview_;
+  ZoomedView* zoomview_;
+  GraphicsScene* scene_;
+  ButtonBar* button_bar_;
+  QDockWidget* dock_widget_;
 
-  QAction* _open_act;
-  QAction* _exit_act;
-  QAction* _zoom_in_act;
-  QAction* _zoom_out_act;
-  QAction* _normal_size_act;
-  QAction* _fit_to_window_act;
-  QAction* _about_act;
-  QAction* _about_qt_act;
+  QAction* open_act_;
+  QAction* exit_act_;
+  QAction* zoom_in_act_;
+  QAction* zoom_out_act_;
+  QAction* normal_size_act_;
+  QAction* fit_to_window_act_;
+  QAction* about_act_;
+  QAction* about_qt_act_;
 
-  QMenu* _file_menu;
-  QMenu* _view_menu;
-  QMenu* _help_menu;
+  QMenu* file_menu_;
+  QMenu* view_menu_;
+  QMenu* help_menu_;
 };
 
 #endif

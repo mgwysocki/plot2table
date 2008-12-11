@@ -19,8 +19,8 @@ void ZoomedView::resizeEvent(QResizeEvent* e)
 {
   QGraphicsView::resizeEvent(e);
   _overlay->resize(this->size());
-  printf("ZoomedView::resizeEvent():  view %dx%d   overlay %dx%d\n", 
-	 width(), height(), _overlay->width(), _overlay->height());
+//   printf("ZoomedView::resizeEvent():  view %dx%d   overlay %dx%d\n", 
+// 	 width(), height(), _overlay->width(), _overlay->height());
   return;
 }
 
@@ -42,7 +42,7 @@ void MZoomedOverlay::paintEvent(QPaintEvent* e)
   QPainter painter(this);
   QPen pen(Qt::SolidLine);
   painter.setPen(pen);
-  for(int i=0; i<w; i+=40)
+  for(int i=0; i<max(w,h); i+=40)
     painter.drawEllipse((w-i)/2, (h-i)/2, i, i);
 
   painter.drawLine(0, h/2, w, h/2);

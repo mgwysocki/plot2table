@@ -11,6 +11,9 @@ PointList::PointList() :
   axis_point1_(0,0),
   axis_point0_set_(false),
   axis_point1_set_(false),
+  axis_point0_color_("blue"),
+  axis_point1_color_("green"),
+  point_color_("red"),
   state_(Uninitialized),
   next_type_(AxisPoint0),
   mode_(None)

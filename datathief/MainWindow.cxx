@@ -10,34 +10,38 @@
 
 #include <iostream>
 
-MainWindow::MainWindow()
+MainWindow::MainWindow() :
+  QMainWindow::QMainWindow()
 {
-  _button_bar = new ButtonBar;
-  _scene = new GraphicsScene;
-  _gview = new GraphicsView;
-  //_gview->setDragMode(QGraphicsView::ScrollHandDrag);
-  _gview->setScene(_scene);
-  //_gview->setCursor(Qt::CrossCursor);
-  _gview->setBackgroundRole(QPalette::Dark);
+  button_bar_ = new ButtonBar;
+  button_bar_->setEnabled(false);
+  scene_ = new GraphicsScene;
+  gview_ = new GraphicsView;
+  //gview_->setDragMode(QGraphicsView::ScrollHandDrag);
+  gview_->setScene(scene_);
+  gview_->setBackgroundRole(QPalette::Dark);
 
-  _zoomview = new ZoomedView;
-  _zoomview->setScene(_scene);
-  _zoomview->setInteractive(false);
-  _zoomview->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-  _zoomview->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-  _zoomview->scale(10., 10.);  // 10x zoomed-in view
+  zoomview_ = new ZoomedView;
+  zoomview_->setScene(scene_);
+  zoomview_->setInteractive(false);
+  zoomview_->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+  zoomview_->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+  zoomview_->scale(10., 10.);  // 10x zoomed-in view
 
   // Ugly, but we need this for the scene to send the cursor position
   //  updates to the zoomed view
-  _scene->set_zoomed_view(_zoomview);
+  scene_->set_zoomed_view(zoomview_);
+
+  QWidget* w = new QWidget;
+  QVBoxLayout* vlayout = new QVBoxLayout;
+  vlayout->addWidget(button_bar_, 0);
+  vlayout->addWidget(zoomview_, 1);
+  vlayout->setContentsMargins(0,0,0,0);
+  w->setLayout(vlayout);
 
   QSplitter* splitter = new QSplitter;
-  QSplitter* splitter2 = new QSplitter;
-  splitter2->setOrientation(Qt::Vertical);
-  splitter2->addWidget(_button_bar);
-  splitter2->addWidget(_zoomview);
-  splitter->addWidget(splitter2);
-  splitter->addWidget(_gview);
+  splitter->addWidget(w);
+  splitter->addWidget(gview_);
 
   QList<int> sizes;
   sizes.append(200);
@@ -49,55 +53,52 @@ MainWindow::MainWindow()
   splitter->setStretchFactor(1, 1);
   this->setCentralWidget(splitter);
 
-  splitter2->setStretchFactor(0, 0);
-  splitter2->setStretchFactor(1, 1);
-  
-  connect(_button_bar->open_button, SIGNAL(clicked()), 
-	  this, SLOT(open()));
-  connect(_button_bar->zoom_in_button, SIGNAL(clicked()), 
-	  this, SLOT(zoom_in()));
-  connect(_button_bar->zoom_out_button, SIGNAL(clicked()), 
-	  this, SLOT(zoom_out()));
-  connect(_button_bar->normal_size_button, SIGNAL(clicked()), 
-	  this, SLOT(normal_size()));
-  connect(_button_bar->fit_to_screen_button, SIGNAL(clicked()), 
-	  this, SLOT(fit_to_window()));
 
   connect(PointList::instance(), SIGNAL(axis_point_set(int, QPointF)),
-	  _button_bar,             SLOT(axis_point_set(int, QPointF)));
+	  button_bar_,             SLOT(axis_point_set(int, QPointF)));
   connect(PointList::instance(), SIGNAL(axis_point_set(int, QPointF)),
-	  _scene,                  SLOT(axis_point_set(int, QPointF)));
+	  scene_,                  SLOT(axis_point_set(int, QPointF)));
   connect(PointList::instance(), SIGNAL(data_point_added(QPointF)),
-	  _button_bar,             SLOT(point_added()));
+	  button_bar_,             SLOT(point_added()));
   connect(PointList::instance(), SIGNAL(data_point_added(QPointF)),
-	  _scene,                  SLOT(add_point(QPointF)));
+	  scene_,                  SLOT(add_point(QPointF)));
   connect(PointList::instance(), SIGNAL(low_error_added(QPointF)),
-	  _scene,                  SLOT(add_low_error(QPointF)));
+	  scene_,                  SLOT(add_low_error(QPointF)));
   connect(PointList::instance(), SIGNAL(high_error_added(QPointF)),
-	  _scene,                  SLOT(add_high_error(QPointF)));
-  connect(_button_bar->remove_button, SIGNAL(clicked()), 
-	  _scene, SLOT(remove_last_point()));
-  connect(_button_bar->remove_all_button, SIGNAL(clicked()), 
-	  _scene, SLOT(remove_all_points()));
-//   connect(_button_bar->remove_button, SIGNAL(clicked()), 
-// 	  PointList::instance(), SLOT(remove_last_point()));
-//   connect(_button_bar->remove_all_button, SIGNAL(clicked()), 
-// 	  PointList::instance(), SLOT(clear()));
+	  scene_,                  SLOT(add_high_error(QPointF)));
+  connect(button_bar_->remove_button, SIGNAL(clicked()), 
+	  scene_, SLOT(remove_last_point()));
+  connect(button_bar_->remove_all_button, SIGNAL(clicked()), 
+	  scene_, SLOT(remove_all_points()));
 
-  connect(_button_bar, SIGNAL(color_changed(QColor)), 
-	  _scene, SLOT(change_point_color(QColor)));
+  connect(button_bar_, SIGNAL(color_changed()), 
+	  scene_, SLOT(point_color_changed()));
 
-  connect(_button_bar, SIGNAL(time_to_save(QPointF, QPointF, bool, bool)), 
+  connect(button_bar_, SIGNAL(time_to_save(QPointF, QPointF, bool, bool)), 
 	  PointList::instance(), SLOT(save_points(QPointF, QPointF, bool, bool)));
 
-//   connect(this, SIGNAL(file_opened(QString)),
-// 	  _button_bar, SLOT(enable_buttons()));
-  connect(_scene, SIGNAL(image_doesnt_fit(QSize)),
+  connect(this, SIGNAL(file_opened()),
+ 	  button_bar_, SLOT(enable()));
+  connect(scene_, SIGNAL(image_doesnt_fit(QSize)),
 	  this, SLOT(resize_to_image(QSize)));
 
   createActions();
   createMenus();
   setWindowTitle(tr("DataThief"));
+
+  QToolBar* toolbar = new QToolBar();
+  toolbar->addAction(open_act_);
+  toolbar->addSeparator();
+  toolbar->addAction(zoom_in_act_);
+  toolbar->addAction(zoom_out_act_);
+  toolbar->addAction(normal_size_act_);
+  toolbar->addAction(fit_to_window_act_);
+  toolbar->setAllowedAreas(Qt::RightToolBarArea);
+  toolbar->setFloatable(false);
+  //toolbar->setToolButtonStyle( Qt::ToolButtonTextUnderIcon );
+  toolbar->setIconSize( QSize(24,24) );
+  //toolbar->setMovable(false);
+  addToolBar( toolbar );
 
   // Set the maximum window size to the desktop size minus a 50 pixel border
   QSize maxsize(QApplication::desktop()->size());
@@ -116,8 +117,8 @@ MainWindow::MainWindow()
 void MainWindow::scale_image(double factor)
 {
   std::cout << "MainWindow::scale_image(" << factor << ")" << std::endl;
-  _gview->scale(factor, factor);
-  _scene->set_scale_factor( _gview->matrix().m11() );
+  gview_->scale(factor, factor);
+  scene_->set_scale_factor( gview_->matrix().m11() );
 
   return;
 }
@@ -135,14 +136,14 @@ void MainWindow::zoom_out()
 
 void MainWindow::normal_size()
 {
-  _gview->resetMatrix();
-  _scene->set_scale_factor( _gview->matrix().m11() );
+  gview_->resetMatrix();
+  scene_->set_scale_factor( gview_->matrix().m11() );
 }
 
 void MainWindow::fit_to_window()
 {
-  float width_scale_factor = width() / (float) _image_pixmap.width();
-  float height_scale_factor = height() / (float) _image_pixmap.height();
+  float width_scale_factor = width() / (float) image_pixmap_.width();
+  float height_scale_factor = height() / (float) image_pixmap_.height();
   if(width_scale_factor < height_scale_factor)  scale_image(width_scale_factor);
   else                                          scale_image(height_scale_factor);
   return;
@@ -152,14 +153,14 @@ void MainWindow::resize_to_image(QSize image_size)
 {
   std::cout << "MainWindow::resize_to_image()" << std::endl;
 
-  QSize other = size() - _gview->size();
+  QSize other = size() - gview_->size();
   QSize newsize = other + image_size + QSize(5,5);
 
   std::cout << "window size: " << width() << "x" << height() << std::endl;
-  std::cout << "_zoomview size: " << _zoomview->size().width() << "x" << _zoomview->size().height() << std::endl;
-  QScrollArea* sa = (QScrollArea*) _zoomview->viewport();
+  std::cout << "zoomview_ size: " << zoomview_->size().width() << "x" << zoomview_->size().height() << std::endl;
+  QScrollArea* sa = (QScrollArea*) zoomview_->viewport();
   std::cout << "scroll area size: " << sa->width() << "x" << sa->height() << std::endl;
-  std::cout << "buttonbar size: " << _button_bar->width() << "x" << _button_bar->height() << std::endl;
+  std::cout << "buttonbar size: " << button_bar_->width() << "x" << button_bar_->height() << std::endl;
   std::cout << "image size: " << image_size.width() << "x" << image_size.height() << std::endl;
 
   resize(newsize);
@@ -178,14 +179,15 @@ void MainWindow::open(QString default_filename)
   std::cout << "Log y: " << od.is_y_log_scale() << std::endl;
 
   QImage image( od.get_filename() );
-  _image_pixmap = QPixmap::fromImage(image);
-  _scene->set_image_pixmap( _image_pixmap );
+  image_pixmap_ = QPixmap::fromImage(image);
+  scene_->set_image_pixmap( image_pixmap_ );
 
-  _button_bar->enable_buttons();
+  button_bar_->enable_buttons();
 
-  _button_bar->log_x_checkbox->setChecked( od.is_x_log_scale() );
-  _button_bar->log_y_checkbox->setChecked( od.is_y_log_scale() );
+  button_bar_->log_x_checkbox->setChecked( od.is_x_log_scale() );
+  button_bar_->log_y_checkbox->setChecked( od.is_y_log_scale() );
   PointList::instance()->set_error_mode( od.get_error_mode() );
+  emit file_opened();
   return;
 }
 
@@ -208,56 +210,58 @@ void MainWindow::about()
 
 void MainWindow::createActions()
 {
-  _open_act = new QAction(tr("&Open..."), this);
-  _open_act->setShortcut(tr("Ctrl+O"));
-  connect(_open_act, SIGNAL(triggered()), this, SLOT(open()));
+  open_act_ = new QAction(tr("&Open Image..."), this);
+  open_act_->setShortcut(tr("Ctrl+O"));
+  connect(open_act_, SIGNAL(triggered()), this, SLOT(open()));
 
-  _exit_act = new QAction(tr("E&xit"), this);
-  _exit_act->setShortcut(tr("Ctrl+Q"));
-  connect(_exit_act, SIGNAL(triggered()), this, SLOT(close()));
+  exit_act_ = new QAction(tr("E&xit"), this);
+  exit_act_->setShortcut(tr("Ctrl+Q"));
+  connect(exit_act_, SIGNAL(triggered()), this, SLOT(close()));
 
-  _zoom_in_act = new QAction(tr("Zoom &In (25%)"), this);
-  _zoom_in_act->setShortcut(tr("Ctrl++"));
-  connect(_zoom_in_act, SIGNAL(triggered()), this, SLOT(zoom_in()));
+  QIcon zoominicon(":/icons/zoomin.png");
+  zoom_in_act_ = new QAction(zoominicon, tr("Zoom &In (25%)"), this);
+  zoom_in_act_->setShortcut(tr("Ctrl++"));
+  connect(zoom_in_act_, SIGNAL(triggered()), this, SLOT(zoom_in()));
 
-  _zoom_out_act = new QAction(tr("Zoom &Out (25%)"), this);
-  _zoom_out_act->setShortcut(tr("Ctrl+-"));
-  connect(_zoom_out_act, SIGNAL(triggered()), this, SLOT(zoom_out()));
+  QIcon zoomouticon(":/icons/zoomout.png");
+  zoom_out_act_ = new QAction(zoomouticon, tr("Zoom &Out (25%)"), this);
+  zoom_out_act_->setShortcut(tr("Ctrl+-"));
+  connect(zoom_out_act_, SIGNAL(triggered()), this, SLOT(zoom_out()));
 
-  _normal_size_act = new QAction(tr("&Normal Size"), this);
-  _normal_size_act->setShortcut(tr("Ctrl+S"));
-  connect(_normal_size_act, SIGNAL(triggered()), this, SLOT(normal_size()));
+  normal_size_act_ = new QAction(tr("&Normal Size"), this);
+  normal_size_act_->setShortcut(tr("Ctrl+S"));
+  connect(normal_size_act_, SIGNAL(triggered()), this, SLOT(normal_size()));
 
-  _fit_to_window_act = new QAction(tr("&Fit to Window"), this);
-  _fit_to_window_act->setShortcut(tr("Ctrl+F"));
-  connect(_fit_to_window_act, SIGNAL(triggered()), this, SLOT(fit_to_window()));
+  QIcon fiticon(":/icons/fittowindow.png");
+  fit_to_window_act_ = new QAction(fiticon, tr("&Fit to Window"), this);
+  fit_to_window_act_->setShortcut(tr("Ctrl+F"));
+  connect(fit_to_window_act_, SIGNAL(triggered()), this, SLOT(fit_to_window()));
 
-  _about_act = new QAction(tr("&About"), this);
-  connect(_about_act, SIGNAL(triggered()), this, SLOT(about()));
+  about_act_ = new QAction(tr("&About"), this);
+  connect(about_act_, SIGNAL(triggered()), this, SLOT(about()));
 
-  _about_qt_act = new QAction(tr("About &Qt"), this);
-  connect(_about_qt_act, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
+  about_qt_act_ = new QAction(tr("About &Qt"), this);
+  connect(about_qt_act_, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
 }
 
 void MainWindow::createMenus()
 {
-  _file_menu = new QMenu(tr("&File"), this);
-  _file_menu->addAction(_open_act);
-  _file_menu->addSeparator();
-  _file_menu->addAction(_exit_act);
+  file_menu_ = new QMenu(tr("&File"), this);
+  file_menu_->addAction(open_act_);
+  file_menu_->addSeparator();
+  file_menu_->addAction(exit_act_);
 
-  _view_menu = new QMenu(tr("&View"), this);
-  _view_menu->addAction(_zoom_in_act);
-  _view_menu->addAction(_zoom_out_act);
-  _view_menu->addAction(_normal_size_act);
-  _view_menu->addSeparator();
-  _view_menu->addAction(_fit_to_window_act);
+  view_menu_ = new QMenu(tr("&View"), this);
+  view_menu_->addAction(zoom_in_act_);
+  view_menu_->addAction(zoom_out_act_);
+  view_menu_->addAction(normal_size_act_);
+  view_menu_->addAction(fit_to_window_act_);
 
-  _help_menu = new QMenu(tr("&Help"), this);
-  _help_menu->addAction(_about_act);
-  _help_menu->addAction(_about_qt_act);
+  help_menu_ = new QMenu(tr("&Help"), this);
+  help_menu_->addAction(about_act_);
+  help_menu_->addAction(about_qt_act_);
 
-  menuBar()->addMenu(_file_menu);
-  menuBar()->addMenu(_view_menu);
-  menuBar()->addMenu(_help_menu);
+  menuBar()->addMenu(file_menu_);
+  menuBar()->addMenu(view_menu_);
+  menuBar()->addMenu(help_menu_);
 }

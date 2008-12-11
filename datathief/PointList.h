@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QPointF>
 #include <QList>
+#include <QColor>
 
 #include "ErrorModes.h"
 
@@ -36,7 +37,7 @@ class PointList : public QObject
     HighErrorStored
   };
 
-  enum NextType {
+  enum PointType {
     AxisPoint0,
     AxisPoint1,
     Point,
@@ -64,7 +65,14 @@ class PointList : public QObject
   ErrorMode get_error_mode() const {return mode_;}
 
   void point_clicked(const QPointF &pointf);
-  NextType get_next_type() const {return next_type_;}
+  PointType get_next_type() const {return next_type_;}
+  
+  QColor get_axis_point0_color()  {return axis_point0_color_;}
+  QColor get_axis_point1_color()  {return axis_point1_color_;}
+  QColor get_point_color()        {return point_color_;}
+  void set_axis_point0_color(const QColor &c)  {axis_point0_color_ = c;}
+  void set_axis_point1_color(const QColor &c)  {axis_point1_color_ = c;}
+  void set_point_color(const QColor &c)        {point_color_ = c;}
 
  public slots:
   void save_points(QPointF graph_point1, QPointF graph_point2, 
@@ -87,8 +95,12 @@ class PointList : public QObject
   bool axis_point0_set_;
   bool axis_point1_set_;
 
+  QColor axis_point0_color_;
+  QColor axis_point1_color_;
+  QColor point_color_;
+
   State state_;
-  NextType next_type_;
+  PointType next_type_;
   ErrorMode mode_;
 };
 

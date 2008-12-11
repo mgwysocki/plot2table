@@ -3,5 +3,7 @@
   <file>icons/zoomin.png</file>
   <file>icons/zoomout.png</file>
   <file>icons/fittowindow.png</file>
+  <file>icons/cursor_high_error.png</file>
+  <file>icons/cursor_low_error.png</file>
 </qresource>
 </RCC>
