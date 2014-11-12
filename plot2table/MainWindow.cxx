@@ -84,7 +84,7 @@ MainWindow::MainWindow() :
 
   createActions();
   createMenus();
-  setWindowTitle(tr("DataThief"));
+  setWindowTitle(tr("Plot2Table"));
 
   QToolBar* toolbar = new QToolBar();
   toolbar->addAction(open_act_);
