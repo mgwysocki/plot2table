@@ -3,7 +3,7 @@
 
 
 TEMPLATE = app
-TARGET = datathief
+TARGET = plot2table
 # DEPENDPATH += .
 # INCLUDEPATH += .
 
