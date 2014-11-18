@@ -46,8 +46,8 @@ class PointList : public QObject
   };
 
   static PointList* instance()
-  { if(!self) self = new PointList();
-    return self; }
+    { if(!self) self = new PointList();
+      return self; }
 
   int size() const {return point_list_.size();}
   
@@ -76,7 +76,7 @@ class PointList : public QObject
 
  public slots:
   void save_points(QPointF graph_point1, QPointF graph_point2, 
-		   bool logx, bool logy);
+                   bool logx, bool logy);
 
  signals:
   void axis_point_set(int, QPointF);
@@ -111,11 +111,11 @@ class PointConverter
 {
  public:
   PointConverter(const QPointF &graph_p0,
-		 const QPointF &graph_p1,
-		 const QPointF &scene_p0,
-		 const QPointF &scene_p1,
-		 const bool &logx,
-		 const bool &logy);
+                 const QPointF &graph_p1,
+                 const QPointF &scene_p0,
+                 const QPointF &scene_p1,
+                 const bool &logx,
+                 const bool &logy);
 
   double convert_x(double x_scene);
   double convert_y(double y_scene);

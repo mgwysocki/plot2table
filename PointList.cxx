@@ -42,36 +42,36 @@ void PointList::point_clicked(const QPointF &pointf)
   } else {
     if( mode_ == Symmetric ){
       if( state_==PointStored ){
-	point_list_[size()-1].low_error  = fabs(pointf.y() - point_list_[size()-1].point.y());
-	point_list_[size()-1].high_error = fabs(pointf.y() - point_list_[size()-1].point.y());
-	state_ = HighErrorStored;
-	QPointF out = point_list_[size()-1].point - QPointF(0., point_list_[size()-1].high_error);
-	emit high_error_added(out);
+        point_list_[size()-1].low_error  = pointf.y();
+        point_list_[size()-1].high_error = pointf.y();
+        state_ = HighErrorStored;
+        QPointF out = point_list_[size()-1].point - QPointF(0., point_list_[size()-1].high_error);
+        emit high_error_added(out);
 
-	out = point_list_[size()-1].point + QPointF(0., point_list_[size()-1].low_error);
-	emit low_error_added(out);
+        out = point_list_[size()-1].point + QPointF(0., point_list_[size()-1].low_error);
+        emit low_error_added(out);
 
       } else {
-	point_list_.append( PointObject(pointf) );
-	state_ = PointStored;
-	emit data_point_added(pointf);
+        point_list_.append( PointObject(pointf) );
+        state_ = PointStored;
+        emit data_point_added(pointf);
       }
 
     } else if( mode_ == Asymmetric ){
       if( state_==PointStored ){
-	point_list_[size()-1].low_error = fabs(pointf.y() - point_list_[size()-1].point.y());
-	state_ = LowErrorStored;
-	QPointF out = point_list_[size()-1].point + QPointF(0., point_list_[size()-1].low_error);
-	emit low_error_added(out);
+        point_list_[size()-1].low_error = fabs(pointf.y() - point_list_[size()-1].point.y());
+        state_ = LowErrorStored;
+        QPointF out = point_list_[size()-1].point + QPointF(0., point_list_[size()-1].low_error);
+        emit low_error_added(out);
       } else if( state_==LowErrorStored ){
-	point_list_[size()-1].high_error = fabs(pointf.y() - point_list_[size()-1].point.y());
-	state_ = HighErrorStored;
-	QPointF out = point_list_[size()-1].point - QPointF(0., point_list_[size()-1].high_error);
-	emit high_error_added(out);
+        point_list_[size()-1].high_error = fabs(pointf.y() - point_list_[size()-1].point.y());
+        state_ = HighErrorStored;
+        QPointF out = point_list_[size()-1].point - QPointF(0., point_list_[size()-1].high_error);
+        emit high_error_added(out);
       } else {
-	point_list_.append( PointObject(pointf) );
-	state_ = PointStored;
-	emit data_point_added(pointf);
+        point_list_.append( PointObject(pointf) );
+        state_ = PointStored;
+        emit data_point_added(pointf);
       }
 
     } else {  // mode == no error bars
@@ -87,15 +87,15 @@ void PointList::point_clicked(const QPointF &pointf)
 void PointList::save_points(QPointF graph_point1, QPointF graph_point2, bool logx, bool logy)
 {
   PointConverter pc(graph_point1, graph_point2, 
-		    axis_point0_, axis_point1_, 
-		    logx, logy);
+                    axis_point0_, axis_point1_, 
+                    logx, logy);
 
 #ifdef DEBUG
   QString filename("points.out");
 #else
   QString filename = QFileDialog::getOpenFileName(this,
-						  tr("Open File"), 
-						  QDir::currentPath());
+                                                  tr("Open File"), 
+                                                  QDir::currentPath());
 #endif
 
   QFile outfile(filename);
@@ -109,15 +109,15 @@ void PointList::save_points(QPointF graph_point1, QPointF graph_point2, bool log
     out << x << " " << y;
     
     if( mode_ == Symmetric ){
-      double ey = pc.convert_y( point_list_[++i].high_error );
-      out << " 0.0 " << fabs(ey - y);
+      double ey = pc.convert_y( point_list_[i].high_error );
+      out << " 0.0 " << (ey-y);
 
     } else if( mode_ == Asymmetric ) {
-      double ey = pc.convert_y( point_list_[++i].low_error );
-      out << " 0.0 0.0 " << fabs(ey - y);
+      double ey = pc.convert_y( point_list_[i].low_error );
+      out << " 0.0 0.0 " << ey;
 
-      ey = pc.convert_y( point_list_[++i].high_error );
-      out << " " << fabs(ey - y);
+      ey = pc.convert_y( point_list_[i].high_error );
+      out << " " << ey;
     }
 
     out << endl;
@@ -131,11 +131,11 @@ void PointList::save_points(QPointF graph_point1, QPointF graph_point2, bool log
 //==========================================================================
 //
 PointConverter::PointConverter(const QPointF &graph_p0,
-			       const QPointF &graph_p1,
-			       const QPointF &scene_p0,
-			       const QPointF &scene_p1,
-			       const bool &logx,
-			       const bool &logy)
+                               const QPointF &graph_p1,
+                               const QPointF &scene_p0,
+                               const QPointF &scene_p1,
+                               const bool &logx,
+                               const bool &logy)
 {
   if(logx) delta_x_graph_ = log10(graph_p1.x()) - log10(graph_p0.x());
   else     delta_x_graph_ = graph_p1.x() - graph_p0.x();
