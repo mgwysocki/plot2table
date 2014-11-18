@@ -1,55 +1,45 @@
 
-#include <QPainter>
+#include "GraphicsPointItem.h"
+#include "PointList.h"
+
 #include <iostream>
 
-#include "PointList.h"
-#include "GraphicsPointItem.h"
-
 GraphicsPointItem::GraphicsPointItem(QPointF &point,
-				     Type t,
-				     QGraphicsItem* parent, 
-				     QGraphicsScene* scene) :
-  QGraphicsItem(parent, scene),
+                                     Type t,
+                                     QGraphicsItem* parent) :
+  QGraphicsItem(parent),
   point_(point),
-  type_(t)
-{}
-
+  type_(t),
+  pen_(Qt::SolidLine)
+{
+  PointList* pl = PointList::instance();
+  if(type_==AxisPoint0) {
+    pen_.setColor(pl->get_axis_point0_color());
+  } else if(type_==AxisPoint1) {
+    pen_.setColor(pl->get_axis_point1_color());
+  } else if(type_==Point) {
+    pen_.setColor(pl->get_point_color());
+  }
+}
 
 QRectF GraphicsPointItem::boundingRect() const
 {
   return QRectF(point_.x()-3, point_.y()-3, 6, 6);
 }
 
-void GraphicsPointItem::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, 
-			      QWidget* widget = 0)
+void GraphicsPointItem::paint(QPainter* painter, const QStyleOptionGraphicsItem* , QWidget*)
 {
-  static QPen pen(Qt::SolidLine);
-  PointList* pl = PointList::instance();
+  painter->setPen(pen_);
 
-  if(type_==AxisPoint0) {
-    pen.setColor(pl->get_axis_point0_color());
-    painter->setPen(pen);
-    painter->drawRect(point_.x()-2, point_.y()-2, 4, 4);
+  QRectF point_rect(0, 0, 4, 4);
+  point_rect.moveCenter(point_);
+  painter->drawRect(point_rect);
 
-  } else if(type_==AxisPoint1) {
-    pen.setColor(pl->get_axis_point1_color());
-    painter->setPen(pen);
-    painter->drawRect(point_.x()-2, point_.y()-2, 4, 4);
-
-  } else if(type_==Point) {
-    pen.setColor(pl->get_point_color());
-    painter->setPen(pen);
-    painter->drawRect(point_.x()-2, point_.y()-2, 4, 4);
-
-  } else if(type_==HighError) {
-    pen.setColor(pl->get_point_color());
-    painter->setPen(pen);
+  if(type_==HighError) {
     painter->drawLine(point_.x()-2, point_.y(), point_.x()+2, point_.y());
     painter->drawLine(point_.x(), point_.y(), point_.x(), point_.y()+2);
 
   } else if(type_==LowError) {
-    pen.setColor(pl->get_point_color());
-    painter->setPen(pen);
     painter->drawLine(point_.x()-2, point_.y(), point_.x()+2, point_.y());
     painter->drawLine(point_.x(), point_.y(), point_.x(), point_.y()-2);
   }
