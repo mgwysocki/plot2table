@@ -1,4 +1,4 @@
-#include <QtGui>
+#include <QtWidgets>
 
 #include "ZoomedView.h"
 #include "GraphicsScene.h"
@@ -55,32 +55,32 @@ MainWindow::MainWindow() :
 
 
   connect(PointList::instance(), SIGNAL(axis_point_set(int, QPointF)),
-	  button_bar_,             SLOT(axis_point_set(int, QPointF)));
+          button_bar_,             SLOT(axis_point_set(int, QPointF)));
   connect(PointList::instance(), SIGNAL(axis_point_set(int, QPointF)),
-	  scene_,                  SLOT(axis_point_set(int, QPointF)));
+          scene_,                  SLOT(axis_point_set(int, QPointF)));
   connect(PointList::instance(), SIGNAL(data_point_added(QPointF)),
-	  button_bar_,             SLOT(point_added()));
+          button_bar_,             SLOT(point_added()));
   connect(PointList::instance(), SIGNAL(data_point_added(QPointF)),
-	  scene_,                  SLOT(add_point(QPointF)));
+          scene_,                  SLOT(add_point(QPointF)));
   connect(PointList::instance(), SIGNAL(low_error_added(QPointF)),
-	  scene_,                  SLOT(add_low_error(QPointF)));
+          scene_,                  SLOT(add_low_error(QPointF)));
   connect(PointList::instance(), SIGNAL(high_error_added(QPointF)),
-	  scene_,                  SLOT(add_high_error(QPointF)));
+          scene_,                  SLOT(add_high_error(QPointF)));
   connect(button_bar_->remove_button, SIGNAL(clicked()), 
-	  scene_, SLOT(remove_last_point()));
+          scene_, SLOT(remove_last_point()));
   connect(button_bar_->remove_all_button, SIGNAL(clicked()), 
-	  scene_, SLOT(remove_all_points()));
+          scene_, SLOT(remove_all_points()));
 
   connect(button_bar_, SIGNAL(color_changed()), 
-	  scene_, SLOT(point_color_changed()));
+          scene_, SLOT(point_color_changed()));
 
   connect(button_bar_, SIGNAL(time_to_save(QPointF, QPointF, bool, bool)), 
 	  PointList::instance(), SLOT(save_points(QPointF, QPointF, bool, bool)));
 
   connect(this, SIGNAL(file_opened()),
- 	  button_bar_, SLOT(enable()));
+          button_bar_, SLOT(enable()));
   connect(scene_, SIGNAL(image_doesnt_fit(QSize)),
-	  this, SLOT(resize_to_image(QSize)));
+          this, SLOT(resize_to_image(QSize)));
 
   createActions();
   createMenus();
@@ -181,6 +181,7 @@ void MainWindow::open(QString default_filename)
   QImage image( od.get_filename() );
   image_pixmap_ = QPixmap::fromImage(image);
   scene_->set_image_pixmap( image_pixmap_ );
+  gview_->setSceneRect( scene_->get_image_rect() );
 
   button_bar_->enable_buttons();
 
