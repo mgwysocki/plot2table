@@ -1,5 +1,5 @@
 
-#include <QtGui>
+#include <QtWidgets>
 #include <QGraphicsView>
 #include <QPixMap>
 
@@ -41,12 +41,18 @@ GraphicsScene::GraphicsScene(QObject* parent) :
   high_error_cursor_ = QCursor(high_error_pm, 16, 0);
 }
 
+QRectF GraphicsScene::get_image_rect() const
+{
+  return QRectF(_image_item->x(), _image_item->y(),
+                _image_item->pixmap().width(), _image_item->pixmap().height());
+}
 
 void GraphicsScene::set_image_pixmap(const QPixmap &image_pixmap)
 {
   _image_item->setPixmap(image_pixmap);
-  this->addItem(_image_item);  
-  this->setSceneRect( QRectF(QPointF(0,0), image_pixmap.size()) );
+  this->addItem(_image_item);
+  _image_item->setPos(100, 100);
+  this->setSceneRect( 0, 0, image_pixmap.width()+200, image_pixmap.height()+200 );
 
   QGraphicsView* view = views().at(0);
   if(image_pixmap.width() > view->width() ||
@@ -108,16 +114,17 @@ void GraphicsScene::image_click_event(QPointF point)
 void GraphicsScene::axis_point_set(int i, QPointF pointf)
 {
   QPointF p = pointf*_scale_factor;
-  if(i==0) new GraphicsPointItem(p, GraphicsPointItem::AxisPoint0, 0, this);
-  else     new GraphicsPointItem(p, GraphicsPointItem::AxisPoint1, 0, this);
+  if(i==0) addItem(new GraphicsPointItem(p, GraphicsPointItem::AxisPoint0, 0));
+  else     addItem(new GraphicsPointItem(p, GraphicsPointItem::AxisPoint1, 0));
 }
 
 // Signaled from the PointList
 void GraphicsScene::add_point(QPointF pointf)
 {
   QPointF p = pointf*_scale_factor;
-  GraphicsPointItem* gpi = new GraphicsPointItem(p, GraphicsPointItem::Point, 0, this);
+  GraphicsPointItem* gpi = new GraphicsPointItem(p, GraphicsPointItem::Point, 0);
   point_item_list_.append(gpi);
+  addItem(gpi);
 
   if( point_list_->get_error_mode() == Asymmetric ){
     _image_item->setCursor( low_error_cursor_ );
@@ -129,7 +136,7 @@ void GraphicsScene::add_low_error(QPointF pointf)
 {
   QPointF p = pointf*_scale_factor;
   GraphicsPointItem* parent = point_item_list_.last();
-  new GraphicsPointItem(p, GraphicsPointItem::LowError, parent);
+  addItem(new GraphicsPointItem(p, GraphicsPointItem::LowError, parent));
 
   if( point_list_->get_error_mode() == Asymmetric ){
     _image_item->setCursor( high_error_cursor_ );
@@ -141,7 +148,7 @@ void GraphicsScene::add_high_error(QPointF pointf)
 {
   QPointF p = pointf*_scale_factor;
   GraphicsPointItem* parent = point_item_list_.last();
-  new GraphicsPointItem(p, GraphicsPointItem::HighError, parent);
+  addItem(new GraphicsPointItem(p, GraphicsPointItem::HighError, parent));
 
   if( point_list_->get_error_mode() == Asymmetric ){
     _image_item->setCursor( point_cursor_ );
@@ -185,16 +192,16 @@ void GraphicsScene::point_color_changed()
 
 
 void GraphicsScene::drawItems(QPainter *painter, int numItems,
-			       QGraphicsItem *items[],
-			       const QStyleOptionGraphicsItem options[],
-			       QWidget *widget)
- {
-   for (int i=0; i<numItems; ++i) {
-     // Draw the item
-     painter->save();
-     painter->setWorldTransform(items[i]->sceneTransform(), true);
-     items[i]->paint(painter, &options[i], widget);
-     painter->restore();
-   }
-   return;
- }
+                              QGraphicsItem *items[],
+                              const QStyleOptionGraphicsItem options[],
+                              QWidget *widget)
+{
+  for (int i=0; i<numItems; ++i) {
+    // Draw the item
+    painter->save();
+    painter->setWorldTransform(items[i]->sceneTransform(), true);
+    items[i]->paint(painter, &options[i], widget);
+    painter->restore();
+  }
+  return;
+}

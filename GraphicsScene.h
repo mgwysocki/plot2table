@@ -25,6 +25,7 @@ class GraphicsScene : public QGraphicsScene
   void adjust_image_size();
   void scale_image(double factor);
   void set_scale_factor(double x) {_scale_factor=x;}
+  QRectF get_image_rect() const;
 
  public slots:
   void image_click_event(QPointF point);
