@@ -47,3 +47,4 @@ SOURCES += ButtonBar.cxx \
 
 RESOURCES += icons.qrc
 DEFINES += DEBUG
+QT += widgets
