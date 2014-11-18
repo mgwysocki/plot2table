@@ -7,7 +7,7 @@
 //-------------------------------------------------------------------
 // The QLabel is our overlay that paints on the zoomed QGraphicsScene.
 //
-class MZoomedOverlay : public QLabel
+class MZoomedOverlay : public QWidget
 {
  Q_OBJECT
 

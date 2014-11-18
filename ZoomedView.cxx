@@ -10,9 +10,12 @@ ZoomedView::ZoomedView(QWidget* parent):
   QGraphicsView(parent)
 {
   this->setUpdatesEnabled(true);
+  //this->setViewportUpdateMode(MinimalViewportUpdate);
   _overlay = new MZoomedOverlay(this);
-  //_overlay->raise();
+  _overlay->raise();
   _overlay->setGeometry(0, 0, width(), height());
+
+  cout << "CacheMode: " << this->cacheMode() << endl;
 }
 
 void ZoomedView::resizeEvent(QResizeEvent* e)
@@ -26,15 +29,21 @@ void ZoomedView::resizeEvent(QResizeEvent* e)
 
 
 MZoomedOverlay::MZoomedOverlay(QWidget* parent) :
-  QLabel::QLabel(parent)
+  QWidget::QWidget(parent)
+  //QLabel::QLabel(parent)
 {
-  this->setAttribute(Qt::WA_NoSystemBackground, true);
-  this->setUpdatesEnabled(true);
+  // this->setAttribute(Qt::WA_NoSystemBackground, true);
+  // //this->setAttribute(Qt::WA_ForceUpdatesDisabled, true);
+  // this->setAttribute(Qt::WA_OpaquePaintEvent, true);
+  // this->setUpdatesEnabled(true);
+  // //this->setBackgroundRole(QPalette::NoRole);
+  // this->setAttribute(Qt::WA_NoSystemBackground, true);
+  // this->setAutoFillBackground(false);
 }
 
 void MZoomedOverlay::paintEvent(QPaintEvent* e)
 {
-  QLabel::paintEvent(e);
+  QWidget::paintEvent(e);
 
   int w( width() );
   int h( height() );
